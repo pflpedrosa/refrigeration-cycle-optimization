@@ -10,6 +10,7 @@ jupyter = "*"
 pandas = "*"
 matplotlib = "*"
 coolprop = "*"
+openpyxl = "*"
 
 [requires]
 python_version = "3.8"
