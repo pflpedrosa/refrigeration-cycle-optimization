@@ -19,8 +19,78 @@ def calculate_point(point):
 
     return point
 
-# Calcula ciclo basico baseado nas variaveis de entrada
-def calculate_basic_cycle(cycle_inputs):
+# Calcula ciclo basico baseado nas variaveis de entrada (trabalho)
+def calculate_basic_cycle_with_work(cycle_inputs):
+    t_0 = cycle_inputs['t_external_env']
+    
+    point_1_saturado = {'Q': 1, 
+                        'T': cycle_inputs['t_internal_env'] - cycle_inputs['approach_evaporator'],
+                        'refrigerant': cycle_inputs['refrigerant']
+                       }
+    calculate_point(point_1_saturado)
+
+    point_1 = {'P': point_1_saturado['P'], 
+               'T': point_1_saturado['T'] + cycle_inputs['superheating'],
+               'refrigerant': cycle_inputs['refrigerant']
+              }
+    calculate_point(point_1)
+
+    point_3_saturado = {'Q': 0, 
+                        'T': cycle_inputs['t_external_env'] + cycle_inputs['approach_condenser'],
+                       'refrigerant': cycle_inputs['refrigerant']
+                       }
+    calculate_point(point_3_saturado)
+
+    point_3 = {'P': point_3_saturado['P'], 
+               'T': point_3_saturado['T'] - cycle_inputs['subcooling'],
+               'refrigerant': cycle_inputs['refrigerant']
+              }
+    calculate_point(point_3)
+
+    point_2_isen = {'S': point_1['S'], 
+                    'P': point_3['P'],
+                    'refrigerant': cycle_inputs['refrigerant']
+                   }
+    calculate_point(point_2_isen)
+
+    point_2 = {'P': point_3['P'], 
+               'H': point_1['H'] + (point_2_isen['H'] - point_1['H']) / cycle_inputs['isentropic_efficiency'],
+               'refrigerant': cycle_inputs['refrigerant']
+              }
+    calculate_point(point_2)
+
+    point_4 = {'P': point_1['P'], 
+               'H': point_3['H'],
+               'refrigerant': cycle_inputs['refrigerant']
+              }
+    calculate_point(point_4)
+
+    m = cycle_inputs['work'] / (point_2['H'] - point_1['H']) 
+    q_evaporator = m * (point_1['H'] - point_4['H'])
+    cop = q_evaporator / cycle_inputs['work'] 
+    cop_carnot = cycle_inputs['t_internal_env'] / (cycle_inputs['t_external_env'] - cycle_inputs['t_internal_env'])
+
+    compressor_exergy_destruction = m * t_0 * (point_2['S'] - point_1['S'])
+    condenser_exergy_destruction = m * t_0 * (point_3['S'] - point_2['S'] + (point_2['H'] - point_3['H']) / cycle_inputs['t_external_env'])
+    expansion_valve_exergy_destruction = m * t_0 * (point_4['S'] - point_3['S'])
+    evaporator_exergy_destruction = m * t_0 * (point_1['S'] - point_4['S'] - (point_1['H'] - point_4['H']) / cycle_inputs['t_internal_env'])
+    total_exergy_destruction = compressor_exergy_destruction + condenser_exergy_destruction + expansion_valve_exergy_destruction + evaporator_exergy_destruction
+    
+    return {
+        'cycle_inputs': cycle_inputs,
+        'point_1': point_1,
+        'point_2': point_2,
+        'point_3': point_3,
+        'point_4': point_4,
+        'm': m,
+        'q_evaporator': q_evaporator,
+        'cop': cop,
+        'exergy_efficiency': cop / cop_carnot,
+        'exergy_efficiency_components': 1 - total_exergy_destruction / (m * (point_2['H'] - point_1['H']))
+    }
+
+# Calcula ciclo basico baseado nas variaveis de entrada (potencia frigorifica)
+def calculate_basic_cycle_with_q_evaporator(cycle_inputs):
     t_0 = cycle_inputs['t_external_env']
     
     point_1_saturado = {'Q': 1, 
@@ -68,6 +138,7 @@ def calculate_basic_cycle(cycle_inputs):
     m = cycle_inputs['q_evaporator'] / (point_1['H'] - point_4['H'])
     work = m * (point_2['H'] - point_1['H'])
     cop = cycle_inputs['q_evaporator'] / work 
+    cop_carnot = cycle_inputs['t_internal_env'] / (cycle_inputs['t_external_env'] - cycle_inputs['t_internal_env'])
     
     compressor_exergy_destruction = m * t_0 * (point_2['S'] - point_1['S'])
     condenser_exergy_destruction = m * t_0 * (point_3['S'] - point_2['S'] + (point_2['H'] - point_3['H']) / cycle_inputs['t_external_env'])
@@ -84,7 +155,7 @@ def calculate_basic_cycle(cycle_inputs):
         'm': m,
         'work': work,
         'cop': cop,
-        'exergy_efficiency': cop / cycle_inputs['cop_carnot'],
+        'exergy_efficiency': cop / cop_carnot,
         'exergy_efficiency_components': 1 - total_exergy_destruction / (m * (point_2['H'] - point_1['H']))
     }
 
@@ -192,6 +263,15 @@ def calculate_two_evaporators_cycle_with_work_and_f(cycle_inputs):
     cop = (q_evaporator_ht + q_evaporator_lt) / cycle_inputs['work'] 
     
     # Exergy Destruction
+    cop_carnot_ht = cycle_inputs['t_internal_env_ht'] / (cycle_inputs['t_external_env'] - cycle_inputs['t_internal_env_ht'])
+    cop_carnot_lt = cycle_inputs['t_internal_env_lt'] / (cycle_inputs['t_external_env'] - cycle_inputs['t_internal_env_lt'])
+    
+    w_carnot_ht = q_evaporator_ht / cop_carnot_ht
+    w_carnot_lt = q_evaporator_lt / cop_carnot_lt
+    
+    cop_carnot = (q_evaporator_ht + q_evaporator_lt) / (w_carnot_ht + w_carnot_lt)
+    
+    # Exergy Destruction Components
     t_0 = cycle_inputs['t_external_env']
     
     compressor_exergy_destruction = m * t_0 * (point_2['S'] - point_1['S'])
@@ -222,7 +302,8 @@ def calculate_two_evaporators_cycle_with_work_and_f(cycle_inputs):
         'q_evaporator_ht': q_evaporator_ht,
         'q_evaporator_lt': q_evaporator_lt,
         'cop': cop,
-        'exergy_efficiency': 1 - total_exergy_destruction / cycle_inputs['work']
+        'exergy_efficiency': cop / cop_carnot,
+        'exergy_efficiency_components': 1 - total_exergy_destruction / cycle_inputs['work']
     }
 
 # Calcula ciclo de dois evaporadores baseado nas variaveis de entrada (potencias frigorificas)
@@ -331,6 +412,15 @@ def calculate_two_evaporators_cycle_with_q_evaporators(cycle_inputs):
     cop = (cycle_inputs['q_evaporator_ht'] + cycle_inputs['q_evaporator_lt']) / work
     
     # Exergy Destruction
+    cop_carnot_ht = cycle_inputs['t_internal_env_ht'] / (cycle_inputs['t_external_env'] - cycle_inputs['t_internal_env_ht'])
+    cop_carnot_lt = cycle_inputs['t_internal_env_lt'] / (cycle_inputs['t_external_env'] - cycle_inputs['t_internal_env_lt'])
+    
+    w_carnot_ht = cycle_inputs['q_evaporator_ht'] / cop_carnot_ht
+    w_carnot_lt = cycle_inputs['q_evaporator_lt'] / cop_carnot_lt
+    
+    cop_carnot = (cycle_inputs['q_evaporator_ht'] + cycle_inputs['q_evaporator_lt']) / (w_carnot_ht + w_carnot_lt)
+    
+    # Exergy Destruction Components
     t_0 = cycle_inputs['t_external_env']
     
     compressor_exergy_destruction = m * t_0 * (point_2['S'] - point_1['S'])
@@ -361,5 +451,6 @@ def calculate_two_evaporators_cycle_with_q_evaporators(cycle_inputs):
         'f': f,
         'work': work,
         'cop': cop,
-        'exergy_efficiency': 1 - total_exergy_destruction / work
+        'exergy_efficiency': cop / cop_carnot,
+        'exergy_efficiency_components': 1 - total_exergy_destruction / work
     }
