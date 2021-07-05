@@ -29,11 +29,14 @@ def calculate_basic_cycle_with_work(cycle_inputs):
                        }
     calculate_point(point_1_saturado)
 
-    point_1 = {'P': point_1_saturado['P'], 
-               'T': point_1_saturado['T'] + cycle_inputs['superheating'],
-               'refrigerant': cycle_inputs['refrigerant']
-              }
-    calculate_point(point_1)
+    if cycle_inputs['superheating'] > 0:
+        point_1 = {'P': point_1_saturado['P'], 
+                'T': point_1_saturado['T'] + cycle_inputs['superheating'],
+                'refrigerant': cycle_inputs['refrigerant']
+                }
+        calculate_point(point_1)
+    else:
+        point_1 = point_1_saturado
 
     point_3_saturado = {'Q': 0, 
                         'T': cycle_inputs['t_external_env'] + cycle_inputs['approach_condenser'],
@@ -41,11 +44,14 @@ def calculate_basic_cycle_with_work(cycle_inputs):
                        }
     calculate_point(point_3_saturado)
 
-    point_3 = {'P': point_3_saturado['P'], 
-               'T': point_3_saturado['T'] - cycle_inputs['subcooling'],
-               'refrigerant': cycle_inputs['refrigerant']
-              }
-    calculate_point(point_3)
+    if cycle_inputs['subcooling'] > 0:
+        point_3 = {'P': point_3_saturado['P'], 
+                'T': point_3_saturado['T'] - cycle_inputs['subcooling'],
+                'refrigerant': cycle_inputs['refrigerant']
+                }
+        calculate_point(point_3)
+    else:
+        point_3 = point_3_saturado
 
     point_2_isen = {'S': point_1['S'], 
                     'P': point_3['P'],
@@ -99,11 +105,14 @@ def calculate_basic_cycle_with_q_evaporator(cycle_inputs):
                        }
     calculate_point(point_1_saturado)
 
-    point_1 = {'P': point_1_saturado['P'], 
-               'T': point_1_saturado['T'] + cycle_inputs['superheating'],
-               'refrigerant': cycle_inputs['refrigerant']
-              }
-    calculate_point(point_1)
+    if cycle_inputs['superheating'] > 0:
+        point_1 = {'P': point_1_saturado['P'], 
+                'T': point_1_saturado['T'] + cycle_inputs['superheating'],
+                'refrigerant': cycle_inputs['refrigerant']
+                }
+        calculate_point(point_1)
+    else:
+        point_1 = point_1_saturado
 
     point_3_saturado = {'Q': 0, 
                         'T': cycle_inputs['t_external_env'] + cycle_inputs['approach_condenser'],
@@ -111,11 +120,14 @@ def calculate_basic_cycle_with_q_evaporator(cycle_inputs):
                        }
     calculate_point(point_3_saturado)
 
-    point_3 = {'P': point_3_saturado['P'], 
-               'T': point_3_saturado['T'] - cycle_inputs['subcooling'],
-               'refrigerant': cycle_inputs['refrigerant']
-              }
-    calculate_point(point_3)
+    if cycle_inputs['subcooling'] > 0:
+        point_3 = {'P': point_3_saturado['P'], 
+                'T': point_3_saturado['T'] - cycle_inputs['subcooling'],
+                'refrigerant': cycle_inputs['refrigerant']
+                }
+        calculate_point(point_3)
+    else:
+        point_3 = point_3_saturado
 
     point_2_isen = {'S': point_1['S'], 
                     'P': point_3['P'],
@@ -169,16 +181,15 @@ def calculate_two_evaporators_cycle_with_work_and_f(cycle_inputs):
                        }
     calculate_point(point_3_saturado)
 
-    if cycle_inputs['subcooling'] == 0:
-        point_3 = point_3_saturado
-    else:
+    if cycle_inputs['subcooling'] > 0:
         point_3 = {'P': point_3_saturado['P'], 
                    'T': point_3_saturado['T'] - cycle_inputs['subcooling'],
                    'refrigerant': cycle_inputs['refrigerant']
                   }
         calculate_point(point_3)
+    else:
+        point_3 = point_3_saturado
         
-    
     # Point 5 (after high temperature evaporator)    
     point_5_saturado = {'Q': 1, 
                         'T': cycle_inputs['t_internal_env_ht'] - cycle_inputs['approach_evaporator_ht'],
@@ -186,14 +197,14 @@ def calculate_two_evaporators_cycle_with_work_and_f(cycle_inputs):
                        }
     calculate_point(point_5_saturado)
     
-    if cycle_inputs['superheating_ht'] == 0:
-        point_5 = point_5_saturado
-    else:
+    if cycle_inputs['superheating_ht'] > 0:
         point_5 = {'P': point_5_saturado['P'], 
                    'T': point_5_saturado['T'] + cycle_inputs['superheating_ht'],
                    'refrigerant': cycle_inputs['refrigerant']
                   }
         calculate_point(point_5)
+    else:
+        point_5 = point_5_saturado
 
     # Point 8 (after low temperature evaporator)  
     point_8_saturado = {'Q': 1, 
@@ -202,14 +213,14 @@ def calculate_two_evaporators_cycle_with_work_and_f(cycle_inputs):
                        }
     calculate_point(point_8_saturado)
 
-    if cycle_inputs['superheating_lt'] == 0:
-        point_8 = point_8_saturado
-    else:
+    if cycle_inputs['superheating_lt'] > 0:
         point_8 = {'P': point_8_saturado['P'], 
                    'T': point_8_saturado['T'] + cycle_inputs['superheating_lt'],
                    'refrigerant': cycle_inputs['refrigerant']
                   }
-        calculate_point(point_8)        
+        calculate_point(point_8)    
+    else:
+        point_8 = point_8_saturado
     
     # Point 4 (after expansion valve of HTE)  
     point_4 = {'P': point_5['P'], 
@@ -316,16 +327,15 @@ def calculate_two_evaporators_cycle_with_q_evaporators(cycle_inputs):
                        }
     calculate_point(point_3_saturado)
 
-    if cycle_inputs['subcooling'] == 0:
-        point_3 = point_3_saturado
-    else:
+    if cycle_inputs['subcooling'] > 0:
         point_3 = {'P': point_3_saturado['P'], 
                    'T': point_3_saturado['T'] - cycle_inputs['subcooling'],
                    'refrigerant': cycle_inputs['refrigerant']
                   }
         calculate_point(point_3)
+    else:
+        point_3 = point_3_saturado
         
-    
     # Point 5 (after high temperature evaporator)    
     point_5_saturado = {'Q': 1, 
                         'T': cycle_inputs['t_internal_env_ht'] - cycle_inputs['approach_evaporator_ht'],
@@ -333,14 +343,14 @@ def calculate_two_evaporators_cycle_with_q_evaporators(cycle_inputs):
                        }
     calculate_point(point_5_saturado)
     
-    if cycle_inputs['superheating_ht'] == 0:
-        point_5 = point_5_saturado
-    else:
+    if cycle_inputs['superheating_ht'] > 0:
         point_5 = {'P': point_5_saturado['P'], 
                    'T': point_5_saturado['T'] + cycle_inputs['superheating_ht'],
                    'refrigerant': cycle_inputs['refrigerant']
                   }
         calculate_point(point_5)
+    else:
+        point_5 = point_5_saturado
 
     # Point 8 (after low temperature evaporator)  
     point_8_saturado = {'Q': 1, 
@@ -349,14 +359,14 @@ def calculate_two_evaporators_cycle_with_q_evaporators(cycle_inputs):
                        }
     calculate_point(point_8_saturado)
 
-    if cycle_inputs['superheating_lt'] == 0:
-        point_8 = point_8_saturado
-    else:
+    if cycle_inputs['superheating_lt'] > 0:
         point_8 = {'P': point_8_saturado['P'], 
                    'T': point_8_saturado['T'] + cycle_inputs['superheating_lt'],
                    'refrigerant': cycle_inputs['refrigerant']
                   }
-        calculate_point(point_8)        
+        calculate_point(point_8)    
+    else:
+        point_8 = point_8_saturado      
     
     # Point 4 (after expansion valve of HTE)  
     point_4 = {'P': point_5['P'], 

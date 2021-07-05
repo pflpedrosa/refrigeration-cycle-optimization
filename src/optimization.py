@@ -81,7 +81,7 @@ def optimize_two_evaporators_cycle(input_values, y):
     
     return optimized_cycle
 
-def optimize_two_evaporators_cycle_with_multiple_refrigerants(default_input_values, input_values, input_ranges):
+def optimize_two_evaporators_cycle_with_multiple_refrigerants(default_input_values, input_values, y ,input_ranges):
     original_input_values = copy.copy(input_values)
     results = pd.DataFrame(columns=['refrigerant',
                                     't_external_env',
@@ -114,7 +114,7 @@ def optimize_two_evaporators_cycle_with_multiple_refrigerants(default_input_valu
             input_values['work'] = default_cycle['work']
             input_values['refrigerant'] = refrigerant
             input_values['t_external_env'] = t_external_env_month[1] + 273.15
-            optimized_cycle = optimize_two_evaporators_cycle(input_values, 'cop')
+            optimized_cycle = optimize_two_evaporators_cycle(input_values, y)
             results = results.append({
                 'refrigerant': refrigerant,
                 't_external_env': t_external_env_month[1],
@@ -191,7 +191,7 @@ def optimize_basic_cycle(input_values, y):
 
     return optimized_cycle
 
-def optimize_basic_cycle_with_multiple_refrigerants(default_input_values, input_values, input_ranges):
+def optimize_basic_cycle_with_multiple_refrigerants(default_input_values, input_values, y, input_ranges):
     original_input_values = copy.copy(input_values)
     results = pd.DataFrame(columns=['refrigerant',
                                     't_external_env',
@@ -220,14 +220,14 @@ def optimize_basic_cycle_with_multiple_refrigerants(default_input_values, input_
             input_values['work'] = default_cycle['work']
             input_values['refrigerant'] = refrigerant
             input_values['t_external_env'] = t_external_env_month[1] + 273.15
-            optimized_cycle = optimize_basic_cycle(input_values, 'exergy_efficiency')
+            optimized_cycle = optimize_basic_cycle(input_values, y)
             results = results.append({
                 'refrigerant': refrigerant,
                 't_external_env': t_external_env_month[1],
                 'month': t_external_env_month[0],
                 'work': optimized_cycle['cycle_inputs']['work'],
-                'monthly_energy_consumption': optimized_cycle['cycle_inputs']['work'] * 24 * 30 / 1000,
-                'monthly_price': optimized_cycle['cycle_inputs']['work'] * 24 * 30 * 0.694 / 1000,
+                'monthly_energy_consumption': optimized_cycle['cycle_inputs']['work'] * 8 * 30 / 1000,
+                'monthly_price': optimized_cycle['cycle_inputs']['work'] * 8 * 30 * 0.694 / 1000,
                 'q_evaporator': optimized_cycle['q_evaporator'],
                 'subcooling': optimized_cycle['cycle_inputs']['subcooling'],
                 'superheating': optimized_cycle['cycle_inputs']['superheating'],
