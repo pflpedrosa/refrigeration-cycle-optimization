@@ -74,7 +74,7 @@ def optimize_two_evaporators_cycle(input_values, y):
     n = 0
     error = 1
     while n < 4 and abs(error) >= 10**(-10):
-        n, current_cycle, next_cycle = calculate_next_all_two_evaporators_cycle(input_values, y, 10**(-1), 5)
+        n, current_cycle, next_cycle = calculate_next_all_two_evaporators_cycle(input_values, y, 10**(-8), 5)
         error = (next_cycle[y] - current_cycle[y])/((next_cycle[y] + current_cycle[y])/2)
     optimized_cycle = calculate_two_evaporators_cycle(input_values)
     return optimized_cycle
@@ -99,6 +99,7 @@ def optimize_two_evaporators_cycle_with_multiple_refrigerants(default_input_valu
                                     'exergy_efficiency',
                                     'default_exergy_efficiency'])
     n = 0
+    print('Starting')
     for refrigerant in input_ranges['refrigerants']:
         for t_external_env_month in input_ranges['t_external_env_month']:
             n += 1
@@ -179,7 +180,7 @@ def optimize_basic_cycle(input_values, y):
     n = 0
     error = 1
     while n < 2 and abs(error) >= 10**(-10):
-        n, current_cycle, next_cycle = calculate_next_all_basic_cycle(input_values, y, 10**(-1), 5)
+        n, current_cycle, next_cycle = calculate_next_all_basic_cycle(input_values, y, 10**(-8), 5)
         error = (next_cycle[y] - current_cycle[y])/((next_cycle[y] + current_cycle[y])/2)
     optimized_cycle = calculate_basic_cycle(input_values)
 
@@ -201,6 +202,7 @@ def optimize_basic_cycle_with_multiple_refrigerants(default_input_values, input_
                                     'exergy_efficiency',
                                     'default_exergy_efficiency'])
     n = 0
+    print('Starting')
     for refrigerant in input_ranges['refrigerants']:
         for t_external_env_month in input_ranges['t_external_env_month']:
             n += 1
