@@ -93,10 +93,11 @@ def optimize_two_evaporators_cycle_with_multiple_refrigerants(default_input_valu
                                     'superheating_ht',
                                     'superheating_lt',
                                     'f',
-                                    'default_f',
                                     'cop',
-                                    'default_cop',
                                     'exergy_efficiency',
+                                    'default_work',
+                                    'default_f',
+                                    'default_cop',                        
                                     'default_exergy_efficiency'])
     n = 0
     print('Starting')
@@ -107,7 +108,8 @@ def optimize_two_evaporators_cycle_with_multiple_refrigerants(default_input_valu
             default_input_values['t_external_env'] = t_external_env_month[1] + 273.15
             default_cycle = calculate_two_evaporators_cycle(default_input_values)
             input_values = copy.copy(original_input_values)
-            input_values['work'] = default_cycle['work']
+            input_values['q_evaporator_ht'] = default_cycle['q_evaporator_ht']
+            input_values['q_evaporator_lt'] = default_cycle['q_evaporator_lt']
             input_values['refrigerant'] = refrigerant
             input_values['t_external_env'] = t_external_env_month[1] + 273.15
             optimized_cycle = optimize_two_evaporators_cycle(input_values, y)
@@ -116,19 +118,20 @@ def optimize_two_evaporators_cycle_with_multiple_refrigerants(default_input_valu
                 'refrigerant': refrigerant,
                 't_external_env': t_external_env_month[1],
                 'month': t_external_env_month[0],
-                'work': optimized_cycle['cycle_inputs']['work'],
-                'monthly_energy_consumption': optimized_cycle['cycle_inputs']['work'] * 24 * 30 / 1000,
-                'monthly_price': optimized_cycle['cycle_inputs']['work'] * 24 * 30 * 0.694 / 1000,
+                'work': optimized_cycle['work'],
+                'monthly_energy_consumption': optimized_cycle['work'] * 24 * 30 / 1000,
+                'monthly_price': optimized_cycle['work'] * 24 * 30 * 0.694 / 1000,
                 'q_evaporator_ht': optimized_cycle['q_evaporator_ht'],
                 'q_evaporator_lt': optimized_cycle['q_evaporator_lt'],
                 'subcooling': optimized_cycle['cycle_inputs']['subcooling'],
                 'superheating_ht': optimized_cycle['cycle_inputs']['superheating_ht'],
                 'superheating_lt': optimized_cycle['cycle_inputs']['superheating_lt'],
-                'f': optimized_cycle['cycle_inputs']['f'],
-                'default_f': default_cycle['f'],
+                'f': optimized_cycle['f'],
                 'cop': optimized_cycle['cop'],
-                'default_cop': default_cycle['cop'],
                 'exergy_efficiency': optimized_cycle['exergy_efficiency_components'],
+                'default_work': default_cycle['work'],
+                'default_f': default_cycle['f'],
+                'default_cop': default_cycle['cop'],
                 'default_exergy_efficiency': default_cycle['exergy_efficiency_components']
             }, ignore_index=True)
     print('Done')
@@ -198,8 +201,9 @@ def optimize_basic_cycle_with_multiple_refrigerants(default_input_values, input_
                                     'subcooling',
                                     'superheating',
                                     'cop',
-                                    'default_cop',
                                     'exergy_efficiency',
+                                    'default_work',
+                                    'default_cop',
                                     'default_exergy_efficiency'])
     n = 0
     print('Starting')
@@ -210,7 +214,7 @@ def optimize_basic_cycle_with_multiple_refrigerants(default_input_values, input_
             default_input_values['t_external_env'] = t_external_env_month[1] + 273.15
             default_cycle = calculate_basic_cycle(default_input_values)
             input_values = copy.copy(original_input_values)
-            input_values['work'] = default_cycle['work']
+            input_values['q_evaporator'] = default_cycle['q_evaporator']
             input_values['refrigerant'] = refrigerant
             input_values['t_external_env'] = t_external_env_month[1] + 273.15
             optimized_cycle = optimize_basic_cycle(input_values, y)
@@ -219,15 +223,16 @@ def optimize_basic_cycle_with_multiple_refrigerants(default_input_values, input_
                 'refrigerant': refrigerant,
                 't_external_env': t_external_env_month[1],
                 'month': t_external_env_month[0],
-                'work': optimized_cycle['cycle_inputs']['work'],
-                'monthly_energy_consumption': optimized_cycle['cycle_inputs']['work'] * 8 * 30 / 1000,
-                'monthly_price': optimized_cycle['cycle_inputs']['work'] * 8 * 30 * 0.694 / 1000,
+                'work': optimized_cycle['work'],        
+                'monthly_energy_consumption': optimized_cycle['work'] * 16 * 30 / 1000,
+                'monthly_price': optimized_cycle['work'] * 16 * 30 * 0.694 / 1000,
                 'q_evaporator': optimized_cycle['q_evaporator'],
                 'subcooling': optimized_cycle['cycle_inputs']['subcooling'],
                 'superheating': optimized_cycle['cycle_inputs']['superheating'],
                 'cop': optimized_cycle['cop'],
-                'default_cop': default_cycle['cop'],
                 'exergy_efficiency': optimized_cycle['exergy_efficiency_components'],
+                'default_cop': default_cycle['cop'],
+                'default_work': default_cycle['work'],
                 'default_exergy_efficiency': default_cycle['exergy_efficiency_components']
             }, ignore_index=True)
     print('Done')
