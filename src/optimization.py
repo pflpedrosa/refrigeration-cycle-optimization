@@ -27,34 +27,39 @@ def calculate_next_all_two_evaporators_cycle(input_values, y, delta, alpha):
     current_cycle = calculate_two_evaporators_cycle(input_values)
 
     # Next superheating_ht
-    next_superheating_ht, reached_threshold_superheating_ht = calculate_next_x_two_evaporators_cycle(input_values, 
-                                                                                                     'superheating_ht',
-                                                                                                     y,
-                                                                                                     current_cycle, 
-                                                                                                     delta, 
-                                                                                                     alpha, 
-                                                                                                     input_values['lower_threshold'], 
-                                                                                                     input_values['upper_threshold'])
+    next_superheating_ht, reached_threshold_superheating_ht = calculate_next_x_two_evaporators_cycle(
+        input_values,
+        'superheating_ht',
+        y,
+        current_cycle,
+        delta,
+        alpha,
+        input_values['lower_threshold'],
+        input_values['upper_threshold']
+    )
 
     # Next superheating_lt
-    next_superheating_lt, reached_threshold_superheating_lt = calculate_next_x_two_evaporators_cycle(input_values, 
-                                                                                                     'superheating_lt',
-                                                                                                     y,
-                                                                                                     current_cycle, 
-                                                                                                     delta, 
-                                                                                                     alpha, 
-                                                                                                     input_values['lower_threshold'], 
-                                                                                                     input_values['upper_threshold'])
+    next_superheating_lt, reached_threshold_superheating_lt = calculate_next_x_two_evaporators_cycle(
+        input_values,
+        'superheating_lt',
+        y,
+        current_cycle,
+        delta,
+        alpha,
+        input_values['lower_threshold'],
+        input_values['upper_threshold']
+    )
 
     # Next subcooling
-    next_subcooling, reached_threshold_subcooling = calculate_next_x_two_evaporators_cycle(input_values, 
-                                                                                           'subcooling',
-                                                                                           y,
-                                                                                           current_cycle, 
-                                                                                           delta, 
-                                                                                           alpha, 
-                                                                                           input_values['lower_threshold'], 
-                                                                                           input_values['upper_threshold'])
+    next_subcooling, reached_threshold_subcooling = calculate_next_x_two_evaporators_cycle(
+        input_values,
+        'subcooling',
+        y,
+        current_cycle,
+        delta,alpha,
+        input_values['lower_threshold'],
+        input_values['upper_threshold']
+    )
     
     # Next f
     next_f, reached_threshold_f = calculate_next_x_two_evaporators_cycle(input_values, 'f', y, current_cycle, delta, alpha, 0.3, 0.7)
@@ -73,32 +78,32 @@ def calculate_next_all_two_evaporators_cycle(input_values, y, delta, alpha):
 def optimize_two_evaporators_cycle(input_values, y):
     n = 0
     error = 1
-    while n < 4 and abs(error) >= 10**(-10):
+    while n < 4 and abs(error) >= 10**(-8):
         n, current_cycle, next_cycle = calculate_next_all_two_evaporators_cycle(input_values, y, 10**(-8), 5)
-        error = (next_cycle[y] - current_cycle[y])/((next_cycle[y] + current_cycle[y])/2)
+        error = (next_cycle[y] - current_cycle[y])/next_cycle[y]
     optimized_cycle = calculate_two_evaporators_cycle(input_values)
     return optimized_cycle
 
 def optimize_two_evaporators_cycle_with_multiple_refrigerants(default_input_values, input_values, y ,input_ranges):
     original_input_values = copy.copy(input_values)
-    results = pd.DataFrame(columns=['refrigerant',
-                                    't_external_env',
-                                    'month',
-                                    'work',
-                                    'monthly_energy_consumption',
-                                    'monthly_price',
-                                    'q_evaporator_ht',
-                                    'q_evaporator_lt',
-                                    'subcooling',
-                                    'superheating_ht',
-                                    'superheating_lt',
-                                    'f',
-                                    'cop',
-                                    'exergy_efficiency',
-                                    'default_work',
-                                    'default_f',
-                                    'default_cop',                        
-                                    'default_exergy_efficiency'])
+    results = pd.DataFrame(columns=[
+        'refrigerant',
+        't_external_env',
+        'month',
+        'work',
+        'q_evaporator_ht',
+        'q_evaporator_lt',
+        'subcooling',
+        'superheating_ht',
+        'superheating_lt',
+        'f',
+        'cop',
+        'exergy_efficiency',
+        'default_work',
+        'default_f',
+        'default_cop',
+        'default_exergy_efficiency']
+    )
     n = 0
     print('Starting')
     for refrigerant in input_ranges['refrigerants']:
@@ -119,8 +124,6 @@ def optimize_two_evaporators_cycle_with_multiple_refrigerants(default_input_valu
                 't_external_env': t_external_env_month[1],
                 'month': t_external_env_month[0],
                 'work': optimized_cycle['work'],
-                'monthly_energy_consumption': optimized_cycle['work'] * 24 * 30 / 1000,
-                'monthly_price': optimized_cycle['work'] * 24 * 30 * 0.694 / 1000,
                 'q_evaporator_ht': optimized_cycle['q_evaporator_ht'],
                 'q_evaporator_lt': optimized_cycle['q_evaporator_lt'],
                 'subcooling': optimized_cycle['cycle_inputs']['subcooling'],
@@ -152,24 +155,28 @@ def calculate_next_all_basic_cycle(input_values, y, delta, alpha):
     current_cycle = calculate_basic_cycle(input_values)
 
     # Next superheating_ht
-    next_superheating, reached_threshold_superheating = calculate_next_x_basic_cycle(input_values, 
-                                                                                     'superheating',
-                                                                                     y,
-                                                                                     current_cycle, 
-                                                                                     delta, 
-                                                                                     alpha, 
-                                                                                     input_values['lower_threshold'], 
-                                                                                     input_values['upper_threshold'])
+    next_superheating, reached_threshold_superheating = calculate_next_x_basic_cycle(
+        input_values,
+        'superheating',
+        y,
+        current_cycle,
+        delta,
+        alpha,
+        input_values['lower_threshold'],
+        input_values['upper_threshold']
+    )
 
     # Next subcooling
-    next_subcooling, reached_threshold_subcooling = calculate_next_x_basic_cycle(input_values, 
-                                                                                 'subcooling',
-                                                                                 y,
-                                                                                 current_cycle, 
-                                                                                 delta, 
-                                                                                 alpha, 
-                                                                                 input_values['lower_threshold'], 
-                                                                                 input_values['upper_threshold'])
+    next_subcooling, reached_threshold_subcooling = calculate_next_x_basic_cycle(
+        input_values,
+        'subcooling',
+        y,
+        current_cycle,
+        delta,
+        alpha,
+        input_values['lower_threshold'],
+        input_values['upper_threshold']
+    )
         
     input_values['superheating'] = next_superheating
     input_values['subcooling'] = next_subcooling
@@ -182,29 +189,29 @@ def calculate_next_all_basic_cycle(input_values, y, delta, alpha):
 def optimize_basic_cycle(input_values, y):
     n = 0
     error = 1
-    while n < 2 and abs(error) >= 10**(-10):
+    while n < 2 and abs(error) >= 10**(-8):
         n, current_cycle, next_cycle = calculate_next_all_basic_cycle(input_values, y, 10**(-8), 5)
-        error = (next_cycle[y] - current_cycle[y])/((next_cycle[y] + current_cycle[y])/2)
+        error = (next_cycle[y] - current_cycle[y])/next_cycle[y]
     optimized_cycle = calculate_basic_cycle(input_values)
 
     return optimized_cycle
 
 def optimize_basic_cycle_with_multiple_refrigerants(default_input_values, input_values, y, input_ranges):
     original_input_values = copy.copy(input_values)
-    results = pd.DataFrame(columns=['refrigerant',
-                                    't_external_env',
-                                    'month',
-                                    'work',
-                                    'monthly_energy_consumption',
-                                    'monthly_price',
-                                    'q_evaporator',
-                                    'subcooling',
-                                    'superheating',
-                                    'cop',
-                                    'exergy_efficiency',
-                                    'default_work',
-                                    'default_cop',
-                                    'default_exergy_efficiency'])
+    results = pd.DataFrame(columns=[
+        'refrigerant',
+        't_external_env',
+        'month',
+        'work',
+        'q_evaporator',
+        'subcooling',
+        'superheating',
+        'cop',
+        'exergy_efficiency',
+        'default_work',
+        'default_cop',
+        'default_exergy_efficiency']
+    )
     n = 0
     print('Starting')
     for refrigerant in input_ranges['refrigerants']:
@@ -223,9 +230,7 @@ def optimize_basic_cycle_with_multiple_refrigerants(default_input_values, input_
                 'refrigerant': refrigerant,
                 't_external_env': t_external_env_month[1],
                 'month': t_external_env_month[0],
-                'work': optimized_cycle['work'],        
-                'monthly_energy_consumption': optimized_cycle['work'] * 16 * 30 / 1000,
-                'monthly_price': optimized_cycle['work'] * 16 * 30 * 0.694 / 1000,
+                'work': optimized_cycle['work'],
                 'q_evaporator': optimized_cycle['q_evaporator'],
                 'subcooling': optimized_cycle['cycle_inputs']['subcooling'],
                 'superheating': optimized_cycle['cycle_inputs']['superheating'],
