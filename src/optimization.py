@@ -76,13 +76,27 @@ def calculate_next_all_two_evaporators_cycle(input_values, y, delta, alpha):
     return sum_of_threshold_reached, current_cycle, next_cycle
 
 def optimize_two_evaporators_cycle(input_values, y):
+    i = 0
     n = 0
     error = 1
+    results = pd.DataFrame(columns=[
+        'iteration',
+        'cop']
+    )
     while n < 4 and abs(error) >= 10**(-8):
+        i += 1
         n, current_cycle, next_cycle = calculate_next_all_two_evaporators_cycle(input_values, y, 10**(-8), 5)
         error = (next_cycle[y] - current_cycle[y])/next_cycle[y]
-    optimized_cycle = calculate_two_evaporators_cycle(input_values)
-    return optimized_cycle
+        if i == 1:
+            results = results.append({
+                'iteration': 0,
+                'cop': current_cycle['cop'],
+            }, ignore_index=True)
+        results = results.append({
+                'iteration': i,
+                'cop': next_cycle['cop'],
+            }, ignore_index=True)
+    return results
 
 def optimize_two_evaporators_cycle_with_multiple_refrigerants(default_input_values, input_values, y ,input_ranges):
     original_input_values = copy.copy(input_values)
@@ -187,14 +201,27 @@ def calculate_next_all_basic_cycle(input_values, y, delta, alpha):
     return sum_of_threshold_reached, current_cycle, next_cycle
 
 def optimize_basic_cycle(input_values, y):
+    i = 0
     n = 0
     error = 1
+    results = pd.DataFrame(columns=[
+        'iteration',
+        'cop']
+    )
     while n < 2 and abs(error) >= 10**(-8):
+        i += 1
         n, current_cycle, next_cycle = calculate_next_all_basic_cycle(input_values, y, 10**(-8), 5)
         error = (next_cycle[y] - current_cycle[y])/next_cycle[y]
-    optimized_cycle = calculate_basic_cycle(input_values)
-
-    return optimized_cycle
+        if i == 1:
+            results = results.append({
+                'iteration': 0,
+                'cop': current_cycle['cop'],
+            }, ignore_index=True)
+        results = results.append({
+                'iteration': i,
+                'cop': next_cycle['cop'],
+            }, ignore_index=True)
+    return results
 
 def optimize_basic_cycle_with_multiple_refrigerants(default_input_values, input_values, y, input_ranges):
     original_input_values = copy.copy(input_values)
